@@ -1,0 +1,27 @@
+{
+  "name": "born",
+  "version": "0.9.0",
+  "description": "💙 一个快速生成模板页面的命令行工具",
+  "bin": {
+    "ct": "./bin/createTemplate.js",
+    "cpa": "./bin/createPage.js"
+  },
+  "dependencies": {
+    "js-beautify": "^1.11.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/h513915503/born.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/h513915503/born/issues"
+  },
+  "homepage": "https://github.com/h513915503/born#readme"
+}
