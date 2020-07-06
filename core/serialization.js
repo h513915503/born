@@ -1,13 +1,5 @@
 const methods = {
-    cTimeToFormat: `cTimeToFormat(value, params) {
-        // type=datetimerange 的时间控件点击 x 清空值后值为 null
-        if (value ?. length) {
-            const [start, end] = value
 
-            params.regTimeStart = timeToFormat(start, 'yyyy-MM-dd HH:mm:ss')
-            params.regTimeEnd = timeToFormat(end, 'yyyy-MM-dd HH:mm:ss')
-        }
-    },`,
     handleRequestSuccess: `handleRequestSuccess(data) {
         // 处理非首次请求，数据为空
         if (this.loaded) {
@@ -38,7 +30,7 @@ const pageDataEnd = {
     dataList: []
 }
 
-function serialize({search: {searchConditionList}, table}) {
+function serialize({search: { searchConditionList }, meta}) {
     const result = `
         import {timeToFormat} from '@/utils/index.js'
         import listMixin from '@/mixins/listMixin.js'
@@ -52,7 +44,7 @@ function serialize({search: {searchConditionList}, table}) {
 
             mixins: [listMixin],
 
-            methods: ${serializeMethods(table)}
+            methods: ${serializeMethods(searchConditionList, meta)}
         }
     `
     return result
@@ -63,33 +55,56 @@ function generateSerializeData(searchConditionList) {
     const selectList = searchConditionList.filter((condition) => condition.type === 'select').map((condition) => [`${condition.prop}List`, []])
 
     return serializeData({
-        ... pageDataStart,
-        searchFormData: serializeData(Object.fromEntries(searchConditionList.map((condition) => [condition.prop, condition.type.endsWith('range') ? [] : "''"]))),
-        ... Object.fromEntries(selectList),
-        ... pageDataEnd
+        pageDataStart,
+        searchFormData: Object.fromEntries(searchConditionList.map((condition) => [condition.prop, condition.type.endsWith('range') ? [] : "''"])),
+        selectList: Object.fromEntries(selectList),
+        pageDataEnd
     })
 }
 
-function serializeData(data) {
+function serializeData({pageDataStart, searchFormData, selectList, pageDataEnd}) {
     return `{
-        ${Object.keys(data).map((key) => `${key}: ${Array.isArray(data[key]) ? '[]' : data[key]}`)}
+        ${serializeDataItem(pageDataStart)}
+        ${serializeDataItem(searchFormData)}
+        ${serializeDataItem(selectList)}
+        ${serializeDataItem(pageDataEnd, false)}
     }`
+}
+
+function serializeDataItem(data, isBreak = true) {
+    return `${Object.keys(data).map((key) => `${key}: ${Array.isArray(data[key]) ? '[]' : data[key]}`)}${isBreak ? '\n' : ''}`
 }
 
 function serializeComputed(searchConditionList) {
     return `
         {
             keyArray() {
-                return ${JSON.stringify(searchConditionList.map((condition) => [condition.prop]))}
+                return ${JSON.stringify(searchConditionList.map((condition) => [condition.prop])).replace(/"/g, "'")}
             }
         }
     `
 }
 
-function serializeMethods(table) {
+function serializeMethods(searchConditionList, {url, method}) {
+    const searchCondition = searchConditionList.find((condition) => condition.type.endsWith('range'))
+
+    if (searchCondition) {
+        const key = `${searchCondition.prop}ToFormat`
+
+        methods[key] = `${key}(value, params) {
+            // type=datetimerange 的时间控件点击 x 清空值后值为 null
+            if (value) {
+                const [start, end] = value
+
+                params.${searchCondition.prop}Start = start
+                params.${searchCondition.prop}End = end
+            }
+        },`
+    }
+
     methods.handleRequestMetadata = `handleRequestMetadata(options) {
-        options.url = '${table.url}'
-        options.method = '${table.method}'
+        options.url = '${url}'
+        options.method = '${method}'
 
         options.axiosOptions = {
             cancelToken: this.$source.token
@@ -97,7 +112,7 @@ function serializeMethods(table) {
     },`
 
     return `{
-        ${Object.keys(methods).sort().map((key) => methods[key]).join('\n')}
+        ${Object.keys(methods).map((key) => methods[key]).join('\n')}
     }`
 }
 
