@@ -37,10 +37,10 @@ function generateFormItemInput(condition) {
     let isNumber = condition.attrs.type === 'number'
 
     if (isNumber) {
-        eventStr = ` @input="${condition.prop} = ${condition.prop}.slice(0, 11)" @keypress="handleKeypress"`
+        eventStr = ` @keypress.native="handleKeypress($event, '${condition.prop}')"`
     }
 
-    return `<el-input type="${condition.type ?? 'text'}" v-model="searchFormData.${condition.prop}" placeholder="${condition.attrs.placeholder}"${eventStr}></el-input>`
+    return `<el-input type="${condition.attrs ?. type ?? 'text'}" v-model="searchFormData.${condition.prop}" placeholder="${condition.attrs.placeholder}"${eventStr}></el-input>`
 }
 
 function generateFormItemSelect(condition) {
@@ -129,8 +129,12 @@ function generateTableColumn(tableColumnList) {
 
 function generateOperationList(operationList) {
     return operationList.map((operation) => {
-        return ` <el-button type="text">
-                    <router-link :to="{path: '${operation.path}' + scope.row.${operation.prop}${operation.query ? `, query: ${generateQuery(operation)}` : ''}}">${operation.text}</router-link>
+        if (operation.isPlainBtn) {
+            return `<el-button type="text">${operation.text}</el-button>`
+        }
+
+        return `<el-button type="text">
+            <router-link :to="{path: '${operation.path}' + scope.row.${operation.prop}${operation.query ? `, query: ${generateQuery(operation)}` : ''}}">${operation.text}</router-link>
                 </el-button>`
     }).join('\n')
 }
