@@ -13,7 +13,7 @@ const methods = {
 
         this.pageTotal = data.total
         this.dataList = data.records
-    }`
+    },`
 }
 const pageDataStart = {
     loading: false,
@@ -64,15 +64,14 @@ function generateSerializeData(searchConditionList) {
 
 function serializeData({pageDataStart, searchFormData, selectList, pageDataEnd}) {
     return `{
-        ${serializeDataItem(pageDataStart)}
-        ${serializeDataItem(searchFormData)}
-        ${serializeDataItem(selectList)}
-        ${serializeDataItem(pageDataEnd, false)}
-    }`
+        ${serializeDataItem(pageDataStart, {comma: true})}
+        searchFormData: {${serializeDataItem(searchFormData)}},\n
+        ${serializeDataItem(selectList, {comma: true})}
+        ${serializeDataItem(pageDataEnd, false)}}`
 }
 
-function serializeDataItem(data, isBreak = true) {
-    return `${Object.keys(data).map((key) => `${key}: ${Array.isArray(data[key]) ? '[]' : data[key]}`)}${isBreak ? '\n' : ''}`
+function serializeDataItem(data, {isBreak = true, comma = false} = {}) {
+    return `${Object.keys(data).map((key) => `${key}: ${Array.isArray(data[key]) ? '[]' : data[key]}`)}${comma ? ',' : ''}${isBreak ? '\n' : ''}`
 }
 
 function serializeComputed(searchConditionList) {
