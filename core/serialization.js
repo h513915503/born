@@ -1,5 +1,4 @@
 const methods = {
-
     handleRequestSuccess: `handleRequestSuccess(data) {
         // 处理非首次请求，数据为空
         if (this.loaded) {
