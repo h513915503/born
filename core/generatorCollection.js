@@ -34,10 +34,10 @@ function generateFormItemByType(condition) {
 
 function generateFormItemInput(condition) {
     let eventStr = ''
-    let isNumber = condition.attrs.type === 'number'
+    const numberType = condition.numberType
 
-    if (isNumber) {
-        eventStr = ` @keypress.native="handleKeypress($event, '${condition.prop}')"`
+    if (typeof numberType !== 'undefined') {
+        eventStr = ` @keypress.native="handleKeypress($event, 'searchFormData.${condition.prop}', ${numberType})"`
     }
 
     return `<el-input type="${condition.attrs ?. type ?? 'text'}" v-model="searchFormData.${condition.prop}" placeholder="${condition.attrs.placeholder}"${eventStr}></el-input>`
