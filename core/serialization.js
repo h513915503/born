@@ -96,21 +96,22 @@ function serializeComputed(searchConditionList) {
 }
 
 function serializeMethods(searchConditionList, {url, method}, modal) {
-    const searchCondition = searchConditionList.find((condition) => condition.type.endsWith('range'))
+    // 添加日期处理
+    searchConditionList.forEach((condition) => {
+        if (condition.type.endsWith('range')) {
+            const key = `${condition.prop}ToFormat`
 
-    if (searchCondition) {
-        const key = `${searchCondition.prop}ToFormat`
+            methods[key] = `${key}(value, params) {
+                // type=datetimerange 的时间控件点击 x 清空值后值为 null
+                if (value) {
+                    const [start, end] = value
 
-        methods[key] = `${key}(value, params) {
-            // type=datetimerange 的时间控件点击 x 清空值后值为 null
-            if (value) {
-                const [start, end] = value
-
-                params.${searchCondition.prop}Start = start
-                params.${searchCondition.prop}End = end
-            }
-        },`
-    }
+                    params.${condition.prop}Start = start
+                    params.${condition.prop}End = end
+                }
+            },`
+        }
+    })
 
     if (modal) {
         methods.handleDialogClose = `handleDialogClose() {
