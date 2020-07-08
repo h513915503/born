@@ -107,8 +107,17 @@ function generateTableColumn(tableColumnList) {
         }
 
         if (column.isCustom) {
+            let detailKind = ''
+
+            if (column.isDetailKind) {
+                detailKind = `<el-button type="text">
+                        <router-link :to="{path: '/detail/' + scope.row.id}">{{scope.row.${column.prop}}}</router-link>
+                    </el-button>`
+            }
+
             return result += `<el-table-column label="${column.label}"${other}>
                         <template slot-scope="scope">
+                            ${detailKind}
                         </template>
                     </el-table-column>`
         }
