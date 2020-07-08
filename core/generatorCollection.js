@@ -7,11 +7,11 @@ function generateSearch(search, button) {
                 <el-form-item>
                     <el-button @click="searchData" type="primary">查询</el-button>
                     <el-button @click="resetForm">重置</el-button>
-                    ${generateButton(button)}
+                    ${button.length ? generateButton(button) : '_flag_'}
                 </el-form-item>
             </el-form>
         </header>
-    `
+    `.replace(/_flag_[\r\n]/, '')
 
     return result
 }
@@ -60,11 +60,6 @@ function generateFormItemDate(condition) {
 }
 
 function generateButton(buttonList) {
-    let result = `
-        <el-button @click="searchData" type="primary">查询</el-button>
-        <el-button @click="resetForm">重置</el-button>
-    `
-
     return buttonList.map((button) => {
         let eventStr = ''
         const disabled = button.disabled ? `disabled="${button.disabled}"` : ''
