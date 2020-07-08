@@ -5,7 +5,7 @@ function generateSearch(search, button) {
                 ${generateFormItem(search.searchConditionList)}
 
                 <el-form-item>
-                    <el-button @click="searchData" type="primary">查询</el-button>
+                    <el-button type="primary" @click="searchData">查询</el-button>
                     <el-button @click="resetForm">重置</el-button>
                     ${button.length ? generateButton(button) : '_flag_'}
                 </el-form-item>
@@ -149,7 +149,7 @@ function generateQuery(operation) {
 
 function generateModal({title, visibleProp, loadingProp}) {
     return `
-        <el-dialog title="${title}" width="40%" :visible.sync="${visibleProp}" @close="handleDialogClose">
+        <el-dialog title="${title}" width="40%" top="30vh" :visible.sync="${visibleProp}" @close="handleDialogClose">
             <div class="btn-wrapper">
                 <el-button type="plain">取消</el-button>
                 <el-button type="primary"${loadingProp ? ` :loading="${loadingProp}"` : ''}>确定</el-button>
