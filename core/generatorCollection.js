@@ -152,6 +152,16 @@ function generateQuery(operation) {
     return `{${Object.keys(operation.query).map((key) => `${key}: scope.row.${operation.query[key]}`)}}`
 }
 
+function generateModal({title, visibleProp, loadingProp}) {
+    return `
+        <el-dialog title="${title}" width="40%" :visible.sync="${visibleProp}" @close="handleDialogClose">
+            <div class="btn-wrapper">
+                <el-button type="plain">取消</el-button>
+                <el-button type="primary"${loadingProp ? ` :loading="${loadingProp}"` : ''}>确定</el-button>
+            </div>
+        </el-dialog>`
+}
+
 function generatePagination() {
     return `\n\n<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentPageChange" :current-page.sync="page" :page-size.sync="pageSize" :page-sizes="[10, 20, 30]" layout="sizes, prev, pager, next, jumper" :total="pageTotal" v-if="dataList.length"></el-pagination>`
 }
@@ -159,5 +169,6 @@ function generatePagination() {
 module.exports = {
     generateSearch,
     generateTable,
+    generateModal,
     generatePagination
 }

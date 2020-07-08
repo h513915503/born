@@ -29,7 +29,17 @@ const pageDataEnd = {
     dataList: []
 }
 
-function serialize({search: { searchConditionList }, meta}) {
+const modalData = {}
+
+function handleModalData(modal = {}) {
+    Object.keys(modal).filter((key) => key.endsWith('Prop')).forEach((key) => {
+        modalData[modal[key]] = 'false'
+    })
+}
+
+function serialize({search: { searchConditionList }, meta, modal}) {
+    handleModalData(modal)
+
     const result = `
         import {timeToFormat} from '@/utils/index.js'
         import listMixin from '@/mixins/listMixin.js'
@@ -43,7 +53,7 @@ function serialize({search: { searchConditionList }, meta}) {
 
             mixins: [listMixin],
 
-            methods: ${serializeMethods(searchConditionList, meta)}
+            methods: ${serializeMethods(searchConditionList, meta, modal)}
         }
     `
     return result
@@ -57,16 +67,18 @@ function generateSerializeData(searchConditionList) {
         pageDataStart,
         searchFormData: Object.fromEntries(searchConditionList.map((condition) => [condition.prop, condition.type.endsWith('range') ? [] : "''"])),
         selectList: Object.fromEntries(selectList),
+        modalData,
         pageDataEnd
     })
 }
 
-function serializeData({pageDataStart, searchFormData, selectList, pageDataEnd}) {
+function serializeData({pageDataStart, searchFormData, selectList, modalData, pageDataEnd}) {
     return `{
         ${serializeDataItem(pageDataStart, {comma: true})}
         searchFormData: {${serializeDataItem(searchFormData)}},\n
         ${serializeDataItem(selectList, {comma: true})}
-        ${serializeDataItem(pageDataEnd, false)}}`
+        ${Object.keys(modalData).length ? serializeDataItem(modalData, {comma: true}) : '_flag_'}
+        ${serializeDataItem(pageDataEnd, false)}}`.replace(/_flag_[\r\n]/, '')
 }
 
 function serializeDataItem(data, {isBreak = true, comma = false} = {}) {
@@ -83,7 +95,7 @@ function serializeComputed(searchConditionList) {
     `
 }
 
-function serializeMethods(searchConditionList, {url, method}) {
+function serializeMethods(searchConditionList, {url, method}, modal) {
     const searchCondition = searchConditionList.find((condition) => condition.type.endsWith('range'))
 
     if (searchCondition) {
@@ -97,6 +109,12 @@ function serializeMethods(searchConditionList, {url, method}) {
                 params.${searchCondition.prop}Start = start
                 params.${searchCondition.prop}End = end
             }
+        },`
+    }
+
+    if (modal) {
+        methods.handleDialogClose = `handleDialogClose() {
+
         },`
     }
 

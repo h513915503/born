@@ -1,8 +1,8 @@
 const path = require('path')
-const { generateSearch, generateTable, generatePagination } = require('./generatorCollection.js')
+const { generateSearch, generateTable, generateModal, generatePagination } = require('./generatorCollection.js')
 const beautify_html = require('js-beautify').html
 
-function generateTemplate({search, button, table, pagination}) {
+function generateTemplate({search, button, table, modal, pagination}) {
     let result = `
         <template>
             <div class="jk-list-wrapper">
@@ -26,8 +26,9 @@ function generateTemplate({search, button, table, pagination}) {
 
     result += `
                 </template>
+                ${modal ? generateModal(modal) : '_flag_'}
             </div>
-        </template>`
+        </template>`.replace(/_flag_[\r\n]/, '')
 
     return beautify_html(result, {
         indent_size: 4,
