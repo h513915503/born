@@ -29,6 +29,8 @@ const pageDataEnd = {
     dataList: []
 }
 
+const importData = {}
+
 const modalData = {}
 
 function handleModalData(modal = {}) {
@@ -37,7 +39,16 @@ function handleModalData(modal = {}) {
     })
 }
 
-function serialize({search: { searchConditionList }, meta, modal}) {
+function handleImportData(buttonList) {
+    buttonList.forEach((button) => {
+        if (button.isImport) {
+            importData[button.loading] = 'false'
+        }
+    })
+}
+
+function serialize({search: { searchConditionList }, button, meta, modal}) {
+    handleImportData(button)
     handleModalData(modal)
 
     const result = `
@@ -53,7 +64,7 @@ function serialize({search: { searchConditionList }, meta, modal}) {
 
             mixins: [listMixin],
 
-            methods: ${serializeMethods(searchConditionList, meta, modal)}
+            methods: ${serializeMethods(searchConditionList, button, meta, modal)}
         }
     `
     return result
@@ -67,18 +78,20 @@ function generateSerializeData(searchConditionList) {
         pageDataStart,
         searchFormData: Object.fromEntries(searchConditionList.map((condition) => [condition.prop, condition.type.endsWith('range') ? [] : "''"])),
         selectList: Object.fromEntries(selectList),
+        importData,
         modalData,
         pageDataEnd
     })
 }
 
-function serializeData({pageDataStart, searchFormData, selectList, modalData, pageDataEnd}) {
+function serializeData({pageDataStart, searchFormData, selectList, importData, modalData, pageDataEnd}) {
     return `{
         ${serializeDataItem(pageDataStart, {comma: true})}
         searchFormData: {${serializeDataItem(searchFormData)}},\n
         ${serializeDataItem(selectList, {comma: true})}
+        ${Object.keys(importData).length ? serializeDataItem(importData, {comma: true}) : '_flag_'}
         ${Object.keys(modalData).length ? serializeDataItem(modalData, {comma: true}) : '_flag_'}
-        ${serializeDataItem(pageDataEnd, false)}}`.replace(/_flag_[\r\n]/, '')
+        ${serializeDataItem(pageDataEnd, false)}}`.replace(/_flag_[\r\n]/g, '')
 }
 
 function serializeDataItem(data, {isBreak = true, comma = false} = {}) {
@@ -95,7 +108,16 @@ function serializeComputed(searchConditionList) {
     `
 }
 
-function serializeMethods(searchConditionList, {url, method}, modal) {
+function serializeMethods(searchConditionList, buttonList, {url, method}, modal) {
+    // 处理导入按钮
+    buttonList.forEach((button) => {
+        if (button.isImport) {
+            methods.handleImportInputChange = `handleImportInputChange(event) {
+                this.${button.loading} = true
+            },`
+        }
+    })
+
     // 添加日期处理
     searchConditionList.forEach((condition) => {
         if (condition.type.endsWith('range')) {

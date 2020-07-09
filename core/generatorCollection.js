@@ -61,16 +61,28 @@ function generateFormItemDate(condition) {
 
 function generateButton(buttonList) {
     return buttonList.map((button) => {
-        let eventStr = ''
+        let text = eventStr = loading = ''
         const disabled = button.disabled ? `disabled="${button.disabled}"` : ''
 
         if (button.events) {
             Object.keys(button.events).forEach((eventName) => {
-                eventStr += ` @${eventName}=${button.events[eventName]}`
+                eventStr += ` @${eventName}="${button.events[eventName]}"`
             })
         }
 
-        return `<el-button type="${button.type}"${disabled}${eventStr}>${button.text}</el-button>`
+        if (button.loading) {
+            loading = ` :loading="${button.loading}"`
+            text = `
+                <label>
+                    ${button.text}
+                    <input type="file" @change="handleImportInputChange">
+                </label>
+            `
+        } else {
+            text = button.text
+        }
+
+        return `<el-button type="${button.type}"${disabled}${eventStr}${loading}>${text}</el-button>`
     }).join('\n')
 }
 
