@@ -149,6 +149,17 @@ function generateOperationList(operationList) {
             return `<el-button type="text">${operation.text}</el-button>`
         }
 
+        if (operation.isDropdownBtn) {
+            return `
+                    <el-dropdown @command="handleDropdownCommand">
+                        <el-button type="text">${operation.text}</el-button>
+                        <el-dropdown-menu slot="dropdown">
+                        ${operation.dropdownList.map((item) => `<el-dropdown-item :command="composeValue('${item.command}', scope.row)">${item.text}</el-dropdown-item>`).join('\n')}
+                        </el-dropdown-menu>
+                    </el-dropdown>
+                `
+        }
+
         return `<el-button type="text">
             <router-link :to="{path: '${operation.path}' + scope.row.${operation.prop}${operation.query ? `, query: ${generateQuery(operation)}` : ''}}">${operation.text}</router-link>
                 </el-button>`

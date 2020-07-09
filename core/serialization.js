@@ -47,7 +47,7 @@ function handleImportData(buttonList) {
     })
 }
 
-function serialize({search: { searchConditionList }, button, meta, modal}) {
+function serialize({search: { searchConditionList }, button, table, meta, modal}) {
     handleImportData(button)
     handleModalData(modal)
 
@@ -64,7 +64,7 @@ function serialize({search: { searchConditionList }, button, meta, modal}) {
 
             mixins: [listMixin],
 
-            methods: ${serializeMethods(searchConditionList, button, meta, modal)}
+            methods: ${serializeMethods(searchConditionList, button, table, meta, modal)}
         }
     `
     return result
@@ -108,7 +108,7 @@ function serializeComputed(searchConditionList) {
     `
 }
 
-function serializeMethods(searchConditionList, buttonList, {url, method}, modal) {
+function serializeMethods(searchConditionList, buttonList, table, {url, method}, modal) {
     // 处理导入按钮
     buttonList.forEach((button) => {
         if (button.isImport) {
@@ -137,6 +137,22 @@ function serializeMethods(searchConditionList, buttonList, {url, method}, modal)
 
     if (modal) {
         methods.handleDialogClose = `handleDialogClose() {
+
+        },`
+    }
+
+    // dropdown 按钮处理函数
+    const column = table.tableColumnList.find((column) => column.operationList)
+    const operation = column ?. operationList.find((operation) => operation.isDropdownBtn)
+
+    if (operation) {
+        methods.composeValue = `composeValue(command, row) {
+            return {
+                command,
+                row
+            }
+        },`
+        methods.handleDropdownCommand = `handleDropdownCommand({command, row}) {
 
         },`
     }
