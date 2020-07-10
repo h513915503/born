@@ -3,10 +3,10 @@
   "version": "0.9.0",
   "description": "💙 一个快速生成模板页面的命令行工具",
   "bin": {
-    "ct": "./bin/createTemplate.js",
-    "cpa": "./bin/createPage.js"
+    "born": "./bin/born.js"
   },
   "dependencies": {
+    "commander": "^5.1.0",
     "js-beautify": "^1.11.0"
   },
   "devDependencies": {},
