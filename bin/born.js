@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const semver = require('semver')
-const { error } = require('../lib/utils.js')
+const { error } = require('../lib/utils/index.js')
 const requiredVersion = require('../package.json').engines.node
 
 if (! semver.satisfies(process.version, requiredVersion, { includePrerelease: true })) {
