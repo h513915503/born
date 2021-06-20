@@ -1,6 +1,6 @@
 {
   "name": "iborn",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "💙 一个快速生成模板页面的命令行工具",
   "bin": {
     "born": "bin/born.js"
